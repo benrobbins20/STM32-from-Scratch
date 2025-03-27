@@ -8,14 +8,20 @@
 #include "timer.h"
 #include "exti.h"
 
-#define GPIOAEN		(1U<<0)
-#define PIN5		(1U<<5)
-char key;
+#define GPIOAEN			(1U<<0)
+#define PIN5			(1U<<5)
+
 static void exti_callback(void);
 static void uart_callback(void);
+static void adc_callback(void);
+static void systick_callback(void);
+static void timer2_callback(void);
 
 // for ADC
 uint32_t sensor_value;
+
+// for uart input
+char key;
 
 int main(void) {
 	// enable LED
@@ -31,11 +37,17 @@ int main(void) {
 	// usart2_rx_interrupt_init();
 
 	// ADC EOC interrupt enable
-	adc_interrupt_init();
+	// adc_interrupt_init();
+	// usart2_tx_init();
+	// start_conversion();
+
+	// SysTick interrupt
+	// usart2_tx_init();
+	// systick_1hz_interrupt();
+
+	// Timer 2 interrupt
 	usart2_tx_init();
-	start_conversion();
-
-
+	timer2_1Hz_interrupt_init();
 
 	while(1) {}
 }
@@ -85,4 +97,23 @@ void ADC_IRQHandler(void) {
 		ADC1->SR &= ~(SR_EOC);
 		adc_callback();
 	}
+}
+
+static void systick_callback(void) {
+	printf("1 second\n\r");
+	GPIOA->ODR ^= PIN5;
+}
+
+void SysTick_Handler(void) {
+	systick_callback();
+}
+
+static void timer2_callback(void) {
+	printf("1 second\n\r");
+	GPIOA->ODR ^= PIN5;
+}
+
+void TIM2_IRQHandler(void) {
+	TIM2->SR &= ~SR_UIF; // clear status register
+	timer2_callback();
 }

@@ -8,6 +8,7 @@
 #define AFRL5			(1U<<20)
 #define AFRL6			(1U<<25)
 #define CCMR_CC1S		(1U<<0)
+#define DIER_UIE		(1U<<0)
 
 void timer2_1Hz_init(void) {
 	/*
@@ -22,9 +23,24 @@ void timer2_1Hz_init(void) {
 
 	RCC->APB1ENR |= TIM2EN;
 	TIM2->PSC = 1600 - 1;
-	TIM2->ARR = 10000 -1;
+	TIM2->ARR = 10000 - 1;
 	TIM2->CNT = 0; // this would have to be 32 bit mode to fit 16 million counts
 	TIM2->CR1 = CR1_CEN; // can overwrite this entire register
+}
+
+void timer2_1Hz_interrupt_init(void) {
+
+	RCC->APB1ENR |= TIM2EN;
+	TIM2->PSC = 1600 - 1;
+	TIM2->ARR = 10000 - 1;
+	TIM2->CNT = 0;
+	TIM2->CR1 = CR1_CEN;
+
+	// enable the update interrupt trigger
+	TIM2->DIER |= DIER_UIE;
+
+	// enable timer 2 in NVIC -> enum 28
+	NVIC_EnableIRQ(TIM2_IRQn);
 }
 
 void timer2_1Hz_compare(void) {
