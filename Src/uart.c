@@ -12,6 +12,15 @@
 #define SR_RXNE			(1U<<5)
 #define CR1_RXNEIE		(1U<<5)
 
+// dma config
+#define DMA1EN			(1U<<21)
+#define DMA1_SX6_EN		(1U<<0)
+#define CHSEL4			(1U<<27)
+#define MINC			(1U<<10)
+#define DIR				(1U<<6)
+#define TCIE			(1U<<4)
+#define DMAT			(1U<<7)
+
 // stm32 clock speed default 16MHz
 #define SYS_FREQ 		16000000
 // abp1 bus same clock speed
@@ -166,6 +175,57 @@ void usart2_rx_interrupt_init(void) {
 
 	// enable uart UE bit 12, start and stop bits are set to default with above line, 0 is reset for 32 bit register
 	USART2->CR1 |= CR1_UE;
+}
+
+//
+void usart_tx_dma_init(uint32_t src, uint32_t dst, uint32_t len) {
+	RCC->AHB1ENR |= DMA1EN;
+
+	// disable stream 6 temporarily to reconfigure
+	DMA1_Stream6->CR &= ~(DMA1_SX6_EN);
+
+	// wait until stream 6 is disabled, do nothing until bit is set to 0
+	while (DMA1_Stream6->CR & DMA1_SX6_EN) {}
+
+	// clear all stream 6 flags 21:18:16
+	DMA1->HIFCR |= (1U<<21);
+	DMA1->HIFCR |= (1U<<20);
+	DMA1->HIFCR |= (1U<<19);
+	DMA1->HIFCR |= (1U<<18);
+	DMA1->HIFCR |= (1U<<16);
+
+	// perepheral access register, set the destination
+	DMA1_Stream6->PAR = dst;
+
+	// memory 0 address register
+	DMA1_Stream6->M0AR = src;
+
+	// set length of buffer, number of data registers
+	DMA1_Stream6->NDTR = len;
+
+	// set dma1 stream 6 to channel 4 - usart2 tx, can clear all bits
+	DMA1_Stream6->CR = CHSEL4;
+
+	// set auto increment
+	DMA1_Stream6->CR |= MINC;
+
+	// direction mem to peripheral - 01
+	DMA1_Stream6->CR |= DIR;
+
+	// enable transfer complete interrupt
+	DMA1_Stream6->CR |= TCIE;
+
+	// clear the fifo control register, set direct mode
+	DMA1_Stream6->FCR = 0;
+
+	// reenable stream 6
+	DMA1_Stream6->CR |= DMA1_SX6_EN;
+
+	// enable dma tx in usart2 control register
+	USART2->CR3 |= DMAT;
+
+	// enable interrupt in nvic
+	NVIC_EnableIRQ(DMA1_Stream6_IRQn);
 }
 
 static void set_baudrate(USART_TypeDef *USARTx, uint32_t PClk, uint32_t Baudrate) {

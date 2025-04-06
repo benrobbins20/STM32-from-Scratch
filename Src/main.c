@@ -46,8 +46,15 @@ int main(void) {
 	// systick_1hz_interrupt();
 
 	// Timer 2 interrupt
+	// usart2_tx_init();
+	// timer2_1Hz_interrupt_init();
+
+	// DMA write a message
+	static char message[] = "bob loblaw\n\r";
 	usart2_tx_init();
-	timer2_1Hz_interrupt_init();
+	usart_tx_dma_init((uint32_t) message, (uint32_t) &USART2->DR,sizeof(message) - 1);
+
+
 
 	while(1) {}
 }
@@ -116,4 +123,18 @@ static void timer2_callback(void) {
 void TIM2_IRQHandler(void) {
 	TIM2->SR &= ~SR_UIF; // clear status register
 	timer2_callback();
+}
+
+static void uart_dma_callback(void) {
+	GPIOA->ODR |= PIN5;
+}
+
+void DMA1_Stream6_IRQHandler(void) {
+	// check transfer control flag in HISR and clear
+	if (DMA1->HISR & HISR_TCIF6) {
+		DMA1->HIFCR |= HIFCR_CTCIF6; // write 1 to clear flag
+
+		// do callback
+		uart_dma_callback();
+	}
 }
