@@ -24,7 +24,7 @@
 // stm32 clock speed default 16MHz
 #define SYS_FREQ 		16000000
 // abp1 bus same clock speed
-#define APB1_CLK  		SYS_FREQ
+#define APBx_CLK  		SYS_FREQ
 // standard uart baud rate
 #define UART_BAUDRATE	115200
 
@@ -34,11 +34,13 @@ static uint16_t compute_uart_div(uint32_t PClk, uint32_t Baudrate);
 void usart2_rxtx_init();
 void usart2_tx_init();
 void usart2_write(int ch);
+void usart1_write(int ch);
 char usart2_read(void);
 
 // use __io directive to redirect printf
 int __io_putchar(int ch) {
 	usart2_write(ch);
+	usart1_write(ch);
 	return ch;
 }
 
@@ -73,7 +75,7 @@ void usart2_rxtx_init(void) {
 	RCC->APB1ENR |= UART2EN;
 
 	// confure baudrate to BRR register of usart2
-	set_baudrate(USART2, APB1_CLK, UART_BAUDRATE);
+	set_baudrate(USART2, APBx_CLK, UART_BAUDRATE);
 
 	// transmit enable and receive enable
 	USART2->CR1 = (CR1_TE | CR1_RE);
@@ -106,7 +108,7 @@ void usart2_tx_init(void) {
 	RCC->APB1ENR |= UART2EN;
 
 	// confure baudrate to BRR register of usart2
-	set_baudrate(USART2, APB1_CLK, UART_BAUDRATE);
+	set_baudrate(USART2, APBx_CLK, UART_BAUDRATE);
 
 	// set the TE bit on usart control register, do not |=, can clobber the entire register
 	USART2->CR1 = CR1_TE;
@@ -133,7 +135,7 @@ void usart2_rx_init(void) {
 	RCC->APB1ENR |= UART2EN;
 
 	// confure baudrate to BRR register of usart2
-	set_baudrate(USART2, APB1_CLK, UART_BAUDRATE);
+	set_baudrate(USART2, APBx_CLK, UART_BAUDRATE);
 
 	// transmit enable and receive enable
 	USART2->CR1 |= CR1_RE;
@@ -162,7 +164,7 @@ void usart2_rx_interrupt_init(void) {
 	RCC->APB1ENR |= UART2EN;
 
 	// confure baudrate to BRR register of usart2
-	set_baudrate(USART2, APB1_CLK, UART_BAUDRATE);
+	set_baudrate(USART2, APBx_CLK, UART_BAUDRATE);
 
 	// transmit enable and receive enable
 	USART2->CR1 = CR1_RE;
@@ -177,7 +179,38 @@ void usart2_rx_interrupt_init(void) {
 	USART2->CR1 |= CR1_UE;
 }
 
-//
+// usart1 config
+void usart1_txrx_init(void) {
+	// usart1 PA9-TX PA10-RX
+	RCC->AHB1ENR |= GPIOAEN;
+
+	// alternate function mode; 21,20 -> 10; 19,18 -> 10
+	GPIOA->MODER &= ~((1U << 18) | (1U << 20));
+	GPIOA->MODER |=  ((1U << 19) | (1U << 21));
+
+	// set AF7 for PA9 PA10, in AFR HIGH!
+	// PA9 -> AF7 0111
+	GPIOA->AFR[1] |= (1U << 4) | (1U<<5) | (1U<<6);
+	GPIOA->AFR[1] &= ~(1U<<7);
+	// PA10 -> AF7 0111
+	GPIOA->AFR[1] |= (1U << 8) | (1U<<9) | (1U<<10);
+	GPIOA->AFR[1] &= ~(1U<<11);
+
+	// usart1 on apb2 bus
+	RCC->APB2ENR |= (1U<<4);
+
+	// USART1 defined in f411xe header file
+	set_baudrate(USART1, APBx_CLK, UART_BAUDRATE);
+
+	// transmit enable and receive enable
+	USART1->CR1 = (CR1_TE | CR1_RE);
+
+	// enable uart UE bit 12, start and stop bits are set to default with above line, 0 is reset for 32 bit register
+	USART1->CR1 |= CR1_UE;
+}
+
+
+// write direct to memory
 void usart_tx_dma_init(uint32_t src, uint32_t dst, uint32_t len) {
 	RCC->AHB1ENR |= DMA1EN;
 
@@ -242,6 +275,13 @@ void usart2_write(int ch) {
 	while (!(USART2->SR & SR_TXE)){}
 	// write data to usart data register with AND mask
 	USART2->DR = (ch & 0xFF);
+}
+
+void usart1_write(int ch) {
+	// keep checking the transmit status register, only breaks out of while loop when register is clear
+	while (!(USART1->SR & SR_TXE)){}
+	// write data to usart data register with AND mask
+	USART1->DR = (ch & 0xFF);
 }
 
 char usart2_read(void) {

@@ -51,12 +51,18 @@ int main(void) {
 
 	// DMA write a message
 	static char message[] = "bob loblaw\n\r";
-	usart2_tx_init();
+	usart2_rxtx_init();
 	usart_tx_dma_init((uint32_t) message, (uint32_t) &USART2->DR,sizeof(message) - 1);
 
 
+	// write to usart1
+	 usart1_txrx_init();
 
-	while(1) {}
+
+	while(1) {
+		printf("bobobo\n");
+		for (volatile int i = 0; i < 1000000; i++);
+	}
 }
 
 static void exti_callback(void) {
