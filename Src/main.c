@@ -7,21 +7,37 @@
 #include "systick.h"
 #include "timer.h"
 #include "exti.h"
+#include "adxl345.h"
 
 #define GPIOAEN			(1U<<0)
 #define PIN5			(1U<<5)
 
 static void exti_callback(void);
-static void uart_callback(void);
+static void uart2_callback(void);
 static void adc_callback(void);
 static void systick_callback(void);
 static void timer2_callback(void);
+static void uart1_callback(void);
 
 // for ADC
 uint32_t sensor_value;
 
 // for uart input
 char key;
+char key1;
+
+// external reference to data gyro receive buffer
+extern uint8_t data_recv[6];
+
+// 16 bits for combined axes
+uint16_t x,y,z;
+
+// floats t0 store 16 bit int * scale factor
+double xg,yg,zg;
+
+// scale factor milli-g / 1000
+const float SCALE_FACTOR = 0.0078;
+
 
 int main(void) {
 	// enable LED
@@ -50,19 +66,34 @@ int main(void) {
 	// timer2_1Hz_interrupt_init();
 
 	// DMA write a message
-	static char message[] = "bob loblaw\n\r";
-	usart2_rxtx_init();
-	usart_tx_dma_init((uint32_t) message, (uint32_t) &USART2->DR,sizeof(message) - 1);
+	//	static char message[] = "bob loblaw\n\r";
+	//	usart2_rxtx_init();
+	//	usart_tx_dma_init((uint32_t) message, (uint32_t) &USART2->DR,sizeof(message) - 1);
+	//
+	//	// write to usart1
+	//	usart1_txrx_init();
+	//
+	//	while(1) {
+	//		printf("bobobo\n\r");
+	//		for (volatile int i = 0; i < 1000000; i++);
+	//		key1 = usart1_read();
+	//	}
 
-
-	// write to usart1
-	 usart1_txrx_init();
-
-
+	// use i2c to read accelerometer
+	adxl_init();
 	while(1) {
-		printf("bobobo\n");
-		for (volatile int i = 0; i < 1000000; i++);
+		// read_values fills 6 byte buffer
+		adxl_read_values(DATA_START);
+		x = ((data_recv[1]<<8) | (data_recv[0]));
+		y = ((data_recv[3]<<8) | (data_recv[2]));
+		z = ((data_recv[5]<<8) | (data_recv[4]));
+
+		// apply scale factor
+		xg = (x * 0.0078);
+		yg = (y * 0.0078);
+		zg = (z * 0.0078);
 	}
+
 }
 
 static void exti_callback(void) {
@@ -81,7 +112,7 @@ void EXTI15_10_IRQHandler (void) {
 	}
 }
 
-static void uart_callback(void) {
+static void uart2_callback(void) {
 	key = USART2->DR;
 	// turn on LED with the input 1
 	if (key == '1') {
@@ -95,7 +126,25 @@ static void uart_callback(void) {
 void USART2_IRQHandler(void) {
 	// check the uart status register for not empty
 	if (USART2->SR & SR_RXNE) {
-		uart_callback();
+		uart2_callback();
+	}
+}
+
+static void uart1_callback(void) {
+	key = USART1->DR;
+	// turn on LED with the input 1
+	if (key == '1') {
+		GPIOA->ODR |= PIN5;
+	}
+	else {
+		GPIOA->ODR &= ~(PIN5);
+	}
+}
+
+void USART1_IRQHandler(void) {
+	// check the uart status register for not empty
+	if (USART1->SR & SR_RXNE) {
+		uart1_callback();
 	}
 }
 
