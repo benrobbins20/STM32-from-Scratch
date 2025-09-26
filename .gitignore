@@ -1,0 +1,25 @@
+# Build outputs
+/Debug/
+/Release/
+/build/
+/*.o
+/*.d
+/*.elf
+/*.map
+/*.bin
+/*.hex
+
+# IDE specific
+.settings/
+.project
+.cproject
+*.launch
+
+# Backup / metadata
+*.log
+*.bak
+*.tmp
+
+# Optional: exclude Cube auto-generated files if not manually edited
+# Inc/
+# Src/
