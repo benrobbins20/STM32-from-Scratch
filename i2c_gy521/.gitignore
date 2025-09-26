@@ -1,0 +1,26 @@
+# Build outputs
+/Debug/
+/Release/
+/build/
+/*.o
+/*.d
+/*.elf
+/*.map
+/*.bin
+/*.hex
+
+# IDE specific
+.settings/
+# commit these to import cubeide project from git
+# .project
+# .cproject
+*.launch
+
+# Backup / metadata
+*.log
+*.bak
+*.tmp
+
+# Optional: exclude Cube auto-generated files if not manually edited
+# Inc/
+# Src/
