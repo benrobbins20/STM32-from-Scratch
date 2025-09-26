@@ -1,0 +1,14 @@
+C:/Users/benro/stm32_bare_metal/CMSIS/Include/core_cm4.h:1688:22:__NVIC_EnableIRQ	2
+../Src/uart.c:41:5:__io_putchar	1
+../Src/uart.c:48:6:usart2_rxtx_init	1
+../Src/uart.c:88:6:usart2_tx_init	1
+../Src/uart.c:121:6:usart2_rx_init	1
+../Src/uart.c:148:6:usart2_rx_interrupt_init	1
+../Src/uart.c:183:6:usart1_txrx_init	1
+../Src/uart.c:214:6:usart_tx_dma_init	2
+../Src/uart.c:264:13:set_baudrate	1
+../Src/uart.c:268:17:compute_uart_div	1
+../Src/uart.c:273:6:usart2_write	2
+../Src/uart.c:280:6:usart1_write	2
+../Src/uart.c:287:6:usart1_read	2
+../Src/uart.c:293:6:usart2_read	2

@@ -1,0 +1,5 @@
+C:/Users/benro/stm32_bare_metal/CMSIS/Include/core_cm4.h:1688:22:__NVIC_EnableIRQ	16	static
+../Src/adc.c:14:6:adc_init	4	static
+../Src/adc.c:30:6:adc_interrupt_init	8	static
+../Src/adc.c:55:6:start_conversion	4	static
+../Src/adc.c:62:10:adc_read	4	static

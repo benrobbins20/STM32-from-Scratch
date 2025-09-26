@@ -1,0 +1,5 @@
+C:/Users/benro/stm32_bare_metal/CMSIS/Include/core_cm4.h:1688:22:__NVIC_EnableIRQ	16	static
+../Src/timer.c:13:6:timer2_1Hz_init	4	static
+../Src/timer.c:31:6:timer2_1Hz_interrupt_init	8	static
+../Src/timer.c:46:6:timer2_1Hz_compare	4	static
+../Src/timer.c:76:6:timer3_input_capture	4	static
