@@ -1,5 +1,6 @@
 # Build outputs
-/Debug/
+[Dd]ebug/
+
 /Release/
 /build/
 /*.o
