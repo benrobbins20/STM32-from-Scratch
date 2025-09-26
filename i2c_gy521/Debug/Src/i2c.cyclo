@@ -1,7 +1,0 @@
-../Src/i2c.c:25:10:set_freq	1
-../Src/i2c.c:34:10:set_standard_mode	1
-../Src/i2c.c:43:6:i2c_init	1
-../Src/i2c.c:99:9:i2c1_getbyte	1
-../Src/i2c.c:106:6:i2c1_readbyte	8
-../Src/i2c.c:156:6:i2c1_burstread	11
-../Src/i2c.c:222:6:i2c1_burstwrite	8
