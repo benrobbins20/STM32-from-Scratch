@@ -16,7 +16,8 @@
 
 #define I2C_100KHZ		80
 
-
+// place to store byte from getter
+volatile uint8_t get_byte;
 
 // function/macro for the freq field of i2c control register
 // take the register and integer 16,  and the position
@@ -95,6 +96,11 @@ void i2c_init(void) {
 
 }
 
+uint8_t i2c1_getbyte(uint8_t saddr, uint8_t maddr) {
+	i2c1_readbyte(saddr, maddr, &get_byte);
+	return get_byte;
+}
+
 // read bytes from a slave address,
 // char is 1 byte, may also want to do uint8_t
 void i2c1_readbyte(char saddr, char maddr, char* data) {
@@ -147,7 +153,7 @@ void i2c1_readbyte(char saddr, char maddr, char* data) {
 }
 
 
-void i2c1_burstread(char saddr, char maddr, int n, char* data) {
+void i2c1_burstread(char saddr, char maddr, int n, uint8_t* data) {
 	// for writing/clearing to it to data register before sending or receiving additional data
 	volatile int tmp;
 

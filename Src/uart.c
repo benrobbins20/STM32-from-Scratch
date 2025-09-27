@@ -284,6 +284,12 @@ void usart1_write(int ch) {
 	USART1->DR = (ch & 0xFF);
 }
 
+char usart1_read(void) {
+	while (!(USART1->SR & SR_RXNE)) {} // do nothing while receive empty
+
+	return USART1->DR;
+}
+
 char usart2_read(void) {
 	// check the receive status not empty register
 	while (!(USART2->SR & SR_RXNE)) {}

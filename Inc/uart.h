@@ -16,6 +16,11 @@ void usart2_rx_init(void);
 void usart2_rx_interrupt_init(void);
 char usart2_read(void);
 void usart_tx_dma_init(uint32_t src, uint32_t dst, uint32_t len);
+void usart1_txrx_init(void);
+
+void usart1_write(int ch);
+
+char usart1_read(void);
 
 // for reading the status register in main
 #define SR_RXNE			(1U<<5)
