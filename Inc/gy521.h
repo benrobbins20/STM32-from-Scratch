@@ -11,8 +11,8 @@
 uint8_t get_mpu6050_id();
 void gy521_read_accel(void);
 
-// can you expose a shared array???
-extern uint8_t gy521_data_recv[6];
+extern uint8_t gy521_accel_data[6];
+extern uint8_t gy521_gyro_data[6];
 void mpu_init(void);
 
 

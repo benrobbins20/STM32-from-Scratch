@@ -42,15 +42,19 @@ extern uint8_t data_recv[6];
 
 // GY521/MPU6050
 // int16! these need to be 2's compliment 16 bit signed int
-int16_t x,y,z;
+int16_t x, y, z;
+int16_t gy_x, gy_y, gy_z;
 
 // floats t0 store 16 bit int * scale factor
-float xg,yg,zg;
+float xg, yg, zg;
+float Gy_x, Gy_y, Gy_z;
 
 // scale factor milli-g / 1000
 const float SCALE_FACTOR = 0.0078;
 
-const float MPU6050_SCALE_FACTOR = 16384.0;
+// scale factors for accel and gyro
+const float MPU6050_ACCEL_SCALE = 16384.0;
+const float MPU6050_GYRO_SCALE = 131.0;
 
 
 int main(void) {
@@ -114,13 +118,23 @@ int main(void) {
 	if (whoami == 0x68) {
 		while(1) {
 			gy521_read_accel();
-			x = (gy521_data_recv[0] << 8 | gy521_data_recv[1]);
-			y = (gy521_data_recv[2] << 8 | gy521_data_recv[3]);
-			z = (gy521_data_recv[4] << 8 | gy521_data_recv[5]);
+			x = (gy521_accel_data[0] << 8 | gy521_accel_data[1]);
+			y = (gy521_accel_data[2] << 8 | gy521_accel_data[3]);
+			z = (gy521_accel_data[4] << 8 | gy521_accel_data[5]);
 
-			xg = (float) x / MPU6050_SCALE_FACTOR;
-			yg = (float) y / MPU6050_SCALE_FACTOR;
-			zg = (float) z / MPU6050_SCALE_FACTOR;
+			xg = (float) x / MPU6050_ACCEL_SCALE;
+			yg = (float) y / MPU6050_ACCEL_SCALE;
+			zg = (float) z / MPU6050_ACCEL_SCALE;
+
+
+//			gy_x = (int16_t)(gy521_gyro_data[0] << 8 | gy521_gyro_data[1]);
+//			gy_y = (int16_t)(gy521_gyro_data[2] << 8 | gy521_gyro_data[3]);
+//			gy_z = (int16_t)(gy521_gyro_data[4] << 8 | gy521_gyro_data[5]);
+//
+//			Gy_x = (float) gy_x / MPU6050_GYRO_SCALE;
+//			Gy_y = (float) gy_y / MPU6050_GYRO_SCALE;
+//			Gy_z = (float) gy_z / MPU6050_GYRO_SCALE;
+
 		}
 	}
 

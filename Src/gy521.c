@@ -10,11 +10,14 @@
 #define GYRO_CONFIG_REG			(0x1B)
 #define ACCEL_CONFIG_REG		(0x1C)
 #define ACCEL_START_ADDR		(0x3B)
+#define GYRO_START_ADDR			(0x43)
 
 uint8_t id_check;
 
 // array of 6 bytes for accel data
-uint8_t gy521_data_recv[6];
+uint8_t gy521_accel_data[6];
+
+uint8_t gy521_gyro_data[6];
 
 
 uint8_t get_mpu6050_id() {
@@ -51,7 +54,11 @@ void set_gyro_accel_range(void) {
 // read the accel data into array that main can access (rather than writing to a pointer to array in main)
 void gy521_read_accel(void) {
 	// pass a byte pointer to burst read and then 'incrementing, increments a byte and reads into DR
-	i2c1_burstread(MPU6050_SLAVE_ADDR, ACCEL_START_ADDR, 6, (uint8_t*)gy521_data_recv);
+	i2c1_burstread(MPU6050_SLAVE_ADDR, ACCEL_START_ADDR, 6, (uint8_t*) gy521_accel_data);
+}
+
+void gy521_read_gyro(void) {
+	i2c1_burstread(MPU6050_SLAVE_ADDR, GYRO_START_ADDR, 6, (uint8_t*) gy521_gyro_data);
 }
 
 
