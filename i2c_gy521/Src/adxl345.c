@@ -4,7 +4,7 @@
 char id_byte;
 
 // buffer for data
-uint8_t data_recv[6];
+uint8_t adxl345_data_recv[6];
 
 void adxl_read_register(uint8_t reg) {
 
@@ -25,7 +25,7 @@ void adxl_write(uint8_t reg, char value) {
 void adxl_read_values(uint8_t reg) {
 
 	// burst read 6 data registers
-	i2c1_burstread(DEVICE_ADDR, reg, 6, (char *)data_recv);
+	i2c1_burstread(DEVICE_ADDR, reg, 6, (char *)adxl345_data_recv);
 }
 
 

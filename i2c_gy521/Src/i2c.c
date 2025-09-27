@@ -153,7 +153,7 @@ void i2c1_readbyte(char saddr, char maddr, char* data) {
 }
 
 
-void i2c1_burstread(char saddr, char maddr, int n, char* data) {
+void i2c1_burstread(char saddr, char maddr, int n, uint8_t* data) {
 	// for writing/clearing to it to data register before sending or receiving additional data
 	volatile int tmp;
 

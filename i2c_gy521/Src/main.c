@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "stm32f4xx.h"
-#include "stm32f4xx_hal.h"
-#include "stm32f4xx_hal_i2c.h"
-#include "stm32f4xx_hal_i2c_ex.h"
+//#include "stm32f4xx_hal.h"
+//#include "stm32f4xx_hal_i2c.h"
+//#include "stm32f4xx_hal_i2c_ex.h"
 
 #include "uart.h"
 #include "adc.h"
@@ -26,7 +26,7 @@ static void uart1_callback(void);
 // for ADC
 uint32_t sensor_value;
 
-// for uart input
+// for UART input
 char key;
 char key1;
 
@@ -87,12 +87,23 @@ int main(void) {
 //	}
 
 
-	// r
+	// read accel data from gy521/mpu6050
 	i2c_init();
 	whoami = get_mpu6050_id();
+	mpu_init();
 
-	while (1) {}
-	// whoami = read_init();
+	// read accel values from gy521
+	if (whoami == 0x68) {
+		while(1) {
+			gy521_read_accel();
+			x = gy521_data_recv[0] << 8 | gy521_data_recv[1];
+			y = gy521_data_recv[2] << 8 | gy521_data_recv[3];
+			z = gy521_data_recv[4] << 8 | gy521_data_recv[5];
+
+		}
+	}
+
+
 
 	// use i2c to read accelerometer
 	// adxl_init();
