@@ -36,17 +36,35 @@ uint8_t whoami;
 // external reference to data gyro receive buffer
 extern uint8_t data_recv[6];
 
+// ADXL345
 // 16 bits for combined axes
-uint16_t x,y,z;
+// uint16_t x,y,z;
+
+// GY521/MPU6050
+// int16! these need to be 2's compliment 16 bit signed int
+int16_t x,y,z;
 
 // floats t0 store 16 bit int * scale factor
-double xg,yg,zg;
+float xg,yg,zg;
 
 // scale factor milli-g / 1000
 const float SCALE_FACTOR = 0.0078;
 
+const float MPU6050_SCALE_FACTOR = 16384.0;
+
 
 int main(void) {
+	// enable fpu
+	// system control block, set bits 20-23 'full access'
+	SCB->CPACR |= (0xF << 20);
+
+	// flush data sync barrier and instruction sync barrier
+	__DSB(); // let all memory accesses complete
+	__ISB(); // flush 'queue' of instructions in pipeline so execution starts fresh with FPU enabled
+
+	// SCB_GetFPUType();
+
+
 	// enable LED
 	RCC->AHB1ENR |= GPIOAEN;
 	GPIOA->MODER |= (1U<<10);
@@ -96,11 +114,13 @@ int main(void) {
 	if (whoami == 0x68) {
 		while(1) {
 			gy521_read_accel();
-			x = gy521_data_recv[0] << 8 | gy521_data_recv[1];
-			y = gy521_data_recv[2] << 8 | gy521_data_recv[3];
-			z = gy521_data_recv[4] << 8 | gy521_data_recv[5];
+			x = (gy521_data_recv[0] << 8 | gy521_data_recv[1]);
+			y = (gy521_data_recv[2] << 8 | gy521_data_recv[3]);
+			z = (gy521_data_recv[4] << 8 | gy521_data_recv[5]);
 
-
+			xg = (float) x / MPU6050_SCALE_FACTOR;
+			yg = (float) y / MPU6050_SCALE_FACTOR;
+			zg = (float) z / MPU6050_SCALE_FACTOR;
 		}
 	}
 
