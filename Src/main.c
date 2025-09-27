@@ -118,6 +118,7 @@ int main(void) {
 	if (whoami == 0x68) {
 		while(1) {
 			gy521_read_accel();
+			gy521_read_gyro();
 			x = (gy521_accel_data[0] << 8 | gy521_accel_data[1]);
 			y = (gy521_accel_data[2] << 8 | gy521_accel_data[3]);
 			z = (gy521_accel_data[4] << 8 | gy521_accel_data[5]);
@@ -127,13 +128,13 @@ int main(void) {
 			zg = (float) z / MPU6050_ACCEL_SCALE;
 
 
-//			gy_x = (int16_t)(gy521_gyro_data[0] << 8 | gy521_gyro_data[1]);
-//			gy_y = (int16_t)(gy521_gyro_data[2] << 8 | gy521_gyro_data[3]);
-//			gy_z = (int16_t)(gy521_gyro_data[4] << 8 | gy521_gyro_data[5]);
-//
-//			Gy_x = (float) gy_x / MPU6050_GYRO_SCALE;
-//			Gy_y = (float) gy_y / MPU6050_GYRO_SCALE;
-//			Gy_z = (float) gy_z / MPU6050_GYRO_SCALE;
+			gy_x = (int16_t)(gy521_gyro_data[0] << 8 | gy521_gyro_data[1]);
+			gy_y = (int16_t)(gy521_gyro_data[2] << 8 | gy521_gyro_data[3]);
+			gy_z = (int16_t)(gy521_gyro_data[4] << 8 | gy521_gyro_data[5]);
+
+			Gy_x = (float) gy_x / MPU6050_GYRO_SCALE;
+			Gy_y = (float) gy_y / MPU6050_GYRO_SCALE;
+			Gy_z = (float) gy_z / MPU6050_GYRO_SCALE;
 
 		}
 	}
