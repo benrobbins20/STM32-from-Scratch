@@ -10,7 +10,7 @@
 
 #include "i2c.h"
 #include <stdint.h>
-
+// #include "stm32f4xx.h"
 
 #define DEVICE_ID_R		0x00
 #define DEVICE_ADDR		0x53
