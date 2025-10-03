@@ -34,16 +34,17 @@ char key1;
 uint8_t whoami;
 
 // external reference to data gyro receive buffer
-extern uint8_t data_recv[6];
+// extern uint8_t data_recv[6];
+uint8_t data_recv[6];
 
 // ADXL345
 // 16 bits for combined axes
-// uint16_t x,y,z;
+uint16_t x,y,z;
 
 // GY521/MPU6050
 // int16! these need to be 2's compliment 16 bit signed int
-int16_t x, y, z;
-int16_t gy_x, gy_y, gy_z;
+//int16_t x, y, z;
+//int16_t gy_x, gy_y, gy_z;
 
 // floats t0 store 16 bit int * scale factor
 float xg, yg, zg;
@@ -55,6 +56,7 @@ const float SCALE_FACTOR = 0.0078;
 // scale factors for accel and gyro
 const float MPU6050_ACCEL_SCALE = 16384.0;
 const float MPU6050_GYRO_SCALE = 131.0;
+
 
 
 int main(void) {
@@ -70,9 +72,9 @@ int main(void) {
 
 
 	// enable LED
-	RCC->AHB1ENR |= GPIOAEN;
-	GPIOA->MODER |= (1U<<10);
-	GPIOA->MODER &= ~(1U<<11);
+//	RCC->AHB1ENR |= GPIOAEN;
+//	GPIOA->MODER |= (1U<<10);
+//	GPIOA->MODER &= ~(1U<<11);
 
 	// User button interrupt
 	// pc13_exti_init();
@@ -110,34 +112,34 @@ int main(void) {
 
 
 	// read accel data from gy521/mpu6050
-	i2c_init();
-	whoami = get_mpu6050_id();
-	mpu_init();
+//	i2c_init();
+//	whoami = get_mpu6050_id();
+//	mpu_init();
 
-	// read accel values from gy521
-	if (whoami == 0x68) {
-		while(1) {
-			gy521_read_accel();
-			gy521_read_gyro();
-			x = (gy521_accel_data[0] << 8 | gy521_accel_data[1]);
-			y = (gy521_accel_data[2] << 8 | gy521_accel_data[3]);
-			z = (gy521_accel_data[4] << 8 | gy521_accel_data[5]);
-
-			xg = (float) x / MPU6050_ACCEL_SCALE;
-			yg = (float) y / MPU6050_ACCEL_SCALE;
-			zg = (float) z / MPU6050_ACCEL_SCALE;
-
-
-			gy_x = (int16_t)(gy521_gyro_data[0] << 8 | gy521_gyro_data[1]);
-			gy_y = (int16_t)(gy521_gyro_data[2] << 8 | gy521_gyro_data[3]);
-			gy_z = (int16_t)(gy521_gyro_data[4] << 8 | gy521_gyro_data[5]);
-
-			Gy_x = (float) gy_x / MPU6050_GYRO_SCALE;
-			Gy_y = (float) gy_y / MPU6050_GYRO_SCALE;
-			Gy_z = (float) gy_z / MPU6050_GYRO_SCALE;
-
-		}
-	}
+//	// read accel values from gy521
+//	if (whoami == 0x68) {
+//		while(1) {
+//			gy521_read_accel();
+//			gy521_read_gyro();
+//			x = (gy521_accel_data[0] << 8 | gy521_accel_data[1]);
+//			y = (gy521_accel_data[2] << 8 | gy521_accel_data[3]);
+//			z = (gy521_accel_data[4] << 8 | gy521_accel_data[5]);
+//
+//			xg = (float) x / MPU6050_ACCEL_SCALE;
+//			yg = (float) y / MPU6050_ACCEL_SCALE;
+//			zg = (float) z / MPU6050_ACCEL_SCALE;
+//
+//
+//			gy_x = (int16_t)(gy521_gyro_data[0] << 8 | gy521_gyro_data[1]);
+//			gy_y = (int16_t)(gy521_gyro_data[2] << 8 | gy521_gyro_data[3]);
+//			gy_z = (int16_t)(gy521_gyro_data[4] << 8 | gy521_gyro_data[5]);
+//
+//			Gy_x = (float) gy_x / MPU6050_GYRO_SCALE;
+//			Gy_y = (float) gy_y / MPU6050_GYRO_SCALE;
+//			Gy_z = (float) gy_z / MPU6050_GYRO_SCALE;
+//
+//		}
+//	}
 
 
 
@@ -155,6 +157,26 @@ int main(void) {
 //		yg = (y * SCALE_FACTOR);
 //		zg = (z * SCALE_FACTOR);
 //	}
+
+
+	// use spi to read accel
+
+	adxl_init_spi();
+
+	while(1) {
+		adxl_spi_read(DATA_START, data_recv);
+
+		x = ((data_recv[1]<<8) | (data_recv[0]));
+		y = ((data_recv[3]<<8) | (data_recv[2]));
+		z = ((data_recv[5]<<8) | (data_recv[4]));
+
+		// apply scale factor
+		xg = (x * SCALE_FACTOR);
+		yg = (y * SCALE_FACTOR);
+		zg = (z * SCALE_FACTOR);
+	}
+
+
 }
 
 static void exti_callback(void) {

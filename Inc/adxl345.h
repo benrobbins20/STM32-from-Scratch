@@ -9,6 +9,7 @@
 #define ADXL345_H_
 
 #include "i2c.h"
+#include "spi.h"
 #include <stdint.h>
 // #include "stm32f4xx.h"
 
@@ -25,9 +26,15 @@
 
 
 
-void adxl_init(void);
+void adxl_i2c_init(void);
 
 // read XYZ data registers 0x31-0x37
-void adxl_read_values(uint8_t reg);
+void adxl_i2c_read_values(uint8_t reg);
+
+// spi implementation
+void adxl_init_spi(void);
+void adxl_spi_read(uint8_t reg, uint8_t *rxdata);
+void adxl_spi_write(uint8_t reg, uint8_t value);
+
 
 #endif /* ADXL345_H_ */

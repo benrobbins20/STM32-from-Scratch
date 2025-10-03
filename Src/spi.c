@@ -11,7 +11,10 @@
 #define SPI1_AF			(0x2A)
 #define SPI1_AF5		(0x555)
 #define SPI1_BAUD		(0x01)
-
+#define SPI1_TXE		(1U<<1)
+#define SPI1_RXNE		(1U<<0)
+#define SPI1_BSY		(1U<<7)
+#define GPIOB_ODR10		(1U<<10)
 
 
 // write bits 101010<<
@@ -70,4 +73,58 @@ void configure_spi(void) {
 
 }
 
+void spi1_transmit(uint8_t *data, uint32_t size) {
+	// spi1 takes data
+	uint32_t i = 0;
+	uint8_t _temp; // read reg to clear
+
+	while(i < size) {
+
+		// Reads "While bit 1 is not high"
+		while(!(SPI1->SR & SPI1_TXE)){}
+
+
+		SPI1->DR = data[i];
+		i++;
+	}
+
+	// after transmit is finished wait for TXE again
+	while(!(SPI1->SR & SPI1_TXE)){}
+
+	// while busy flag is set
+	while(SPI1->SR & SPI1_BSY){}
+
+	// sequentially read DR and SR into temp variable to clear overrun after all data is sent
+	// this is reading the whole byte into the temp variable
+	// another load instruction of the status register clears the overrun
+	// its not necessarily a hack, its just using the functionality of spi to trigger the fifo queue to advance.
+	_temp = SPI1->DR;
+	_temp = SPI1->SR;
+}
+
+void spi1_receive(uint8_t *data, uint32_t size) {
+	while(size > 0) {
+
+		// sending a dummy byte triggers the master to start clock sequence and send data
+		SPI1->DR = 0;
+
+		// while receive not empty is not set
+		// while receive is empty,  wait
+		while(!(SPI1->SR & SPI1_RXNE)){}
+
+		// fill the data buffer
+		*data++ = SPI1->DR;
+		size--;
+
+	}
+}
+
+// trigger the slave select line with a GPIO
+void cs_enable(void) {
+	GPIOB->ODR &= ~GPIOB_ODR10; // write output LOW to trigger slave
+}
+
+void cs_disable(void) {
+	GPIOB->ODR |= (GPIOB_ODR10);
+}
 
