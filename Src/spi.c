@@ -17,12 +17,14 @@
 #define GPIOB_ODR10		(1U<<10)
 
 
-// write bits 101010<<
+// write bits 101010<<6
 uint32_t write_reg(uint32_t reg, uint32_t value, int offset, uint32_t mask ) {
-	mask = 0x3F << offset;
-	value = (value & mask) << offset;
-	reg &= ~(mask); // set value = 0
-	reg |= (value); // set value 2A<<6
+	// write zero to mask bits offset
+	reg &= ~(mask << offset); // set value = 0
+	// write value into field
+	reg |= (value << offset);
+
+
 	return reg;
 }
 
@@ -32,11 +34,13 @@ void init_spi1_gpio(void) {
 	RCC->AHB1ENR |= GPIOB_EN;
 
 	// AF05 PB3 - SCK, PB4 - MISO, PB5 - MOSI, GPIOB MODER
-	write_reg(GPIOB->MODER, SPI1_AF, 6, 0x3F);
+	GPIOB->MODER = write_reg(GPIOB->MODER, SPI1_AF, 6, 0x3F);
 
 	// write 0101 AF5, port b, pins 3,4,5
-	write_reg(GPIOB->AFR[0], SPI1_AF5, 12, 0xFFF);
+	GPIOB->AFR[0] = write_reg(GPIOB->AFR[0], SPI1_AF5, 12, 0xFFF);
 
+	// manual CS gpio
+	GPIOB->MODER |= (1U<<20);
 }
 
 void configure_spi(void) {
@@ -44,7 +48,7 @@ void configure_spi(void) {
 	RCC->APB2ENR |= SPI1_EN;
 
 	// 16MHz / 4 baud rate
-	write_reg(SPI1->CR1, SPI1_BAUD, 3, 0x07);
+	SPI1->CR1 = write_reg(SPI1->CR1, SPI1_BAUD, 3, 0x07);
 
 
 	// mode 3 CPOL & CPHA, receive on rising edge, send on falling edge

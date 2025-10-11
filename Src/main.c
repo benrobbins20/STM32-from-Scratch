@@ -39,7 +39,7 @@ uint8_t data_recv[6];
 
 // ADXL345
 // 16 bits for combined axes
-uint16_t x,y,z;
+int16_t x,y,z;
 
 // GY521/MPU6050
 // int16! these need to be 2's compliment 16 bit signed int

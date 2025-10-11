@@ -81,13 +81,13 @@ void adxl_init_spi(void) {
 	configure_spi();
 
 	// write +- 4g (01) to data format register (1,0), write byte 0x01
-	adxl_i2c_write(DATA_FMT_R, RANGE_4G);
+	adxl_spi_write(DATA_FMT_R, RANGE_4G);
 
 	// send reset to power control register
-	adxl_i2c_write(PWR_CTRL, RESET);
+	adxl_spi_write(PWR_CTRL, RESET);
 
 	// set power control measure bit
-	adxl_i2c_write(PWR_CTRL, SET_MEASURE);
+	adxl_spi_write(PWR_CTRL, SET_MEASURE);
 }
 
 
