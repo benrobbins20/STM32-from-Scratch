@@ -248,4 +248,3 @@ void i2c1_burstwrite(char saddr, char maddr, int n, char* data) {
 	I2C1->CR1 |= CR1_STOP;
 }
 
-

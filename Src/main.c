@@ -30,7 +30,7 @@ char key1;
 extern uint8_t data_recv[6];
 
 // 16 bits for combined axes
-uint16_t x,y,z;
+int16_t x,y,z;
 
 // floats t0 store 16 bit int * scale factor
 double xg,yg,zg;
@@ -80,7 +80,7 @@ int main(void) {
 	//	}
 
 	// use i2c to read accelerometer
-	adxl_init();
+	adxl_i2c_init();
 	while(1) {
 		// read_values fills 6 byte buffer
 		adxl_read_values(DATA_START);
