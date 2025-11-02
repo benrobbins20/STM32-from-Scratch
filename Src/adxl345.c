@@ -6,8 +6,11 @@ char id_byte;
 #define SPI_MULTIBYTE_EN	0x40
 #define READ_OPERATION		0x80
 
-// buffer for data
-uint8_t adxl345_data_recv[6];
+// externally exposed buffers for i2c data
+uint8_t adxl345_i2c_data_recv[6];
+uint8_t mpu6050_i2c_data_recv[6];
+// buffer for spi data
+uint8_t adxl345_spi_data_recv[6];
 
 // I2C
 void adxl_i2c_read_register(uint8_t reg) {
@@ -29,11 +32,11 @@ void adxl_i2c_write(uint8_t reg, char value) {
 void adxl_i2c_read_values(uint8_t reg) {
 
 	// burst read 6 data registers
-	i2c1_burstread(DEVICE_ADDR, reg, 6, (char *)adxl345_data_recv);
+	i2c1_burstread(DEVICE_ADDR, reg, 6, (char *)adxl345_i2c_data_recv);
 }
 
 void adxl_i2c_init(void) {
-
+	i2c_init();
 	// verify device id 0xE5 for adxl
 	adxl_i2c_read_register(DEVICE_ID_R);
 

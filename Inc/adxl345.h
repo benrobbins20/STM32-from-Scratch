@@ -25,13 +25,16 @@
 #define SET_MEASURE		(1U<<3) // technically equals 0b1000=0x08
 
 
-
+// ensure i2c_init(0 is ran to configure AF, default speed, etc
 void adxl_i2c_init(void);
+extern uint8_t adxl345_i2c_data_recv[6];
+extern uint8_t mpu6050_i2c_data_recv[6];
 
 // read XYZ data registers 0x31-0x37
 void adxl_i2c_read_values(uint8_t reg);
 
 // spi implementation
+extern uint8_t adxl345_spi_data_recv[6]; // expose this as an extern buffer for main to store data in
 void adxl_init_spi(void);
 void adxl_spi_read(uint8_t reg, uint8_t *rxdata);
 void adxl_spi_write(uint8_t reg, uint8_t value);

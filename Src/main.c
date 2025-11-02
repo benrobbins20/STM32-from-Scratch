@@ -33,9 +33,7 @@ char key1;
 // byte for the mpu6050 device id check
 uint8_t whoami;
 
-// external reference to data gyro receive buffer
-// extern uint8_t data_recv[6];
-uint8_t data_recv[6];
+
 
 // ADXL345
 // 16 bits for combined axes
@@ -144,10 +142,26 @@ int main(void) {
 
 
 	// use i2c to read accelerometer
-	// adxl_init();
+	adxl_i2c_init();
+	while(1) {
+		// read_values fills 6 byte buffer
+		adxl_i2c_read_values(DATA_START);
+		x = ((adxl345_i2c_data_recv[1]<<8) | (adxl345_i2c_data_recv[0]));
+		y = ((adxl345_i2c_data_recv[3]<<8) | (adxl345_i2c_data_recv[2]));
+		z = ((adxl345_i2c_data_recv[5]<<8) | (adxl345_i2c_data_recv[4]));
+
+		// apply scale factor
+		xg = (x * SCALE_FACTOR);
+		yg = (y * SCALE_FACTOR);
+		zg = (z * SCALE_FACTOR);
+	}
+
+
+//	// use spi to read accel
+//	adxl_init_spi();
 //	while(1) {
-//		// read_values fills 6 byte buffer
-//		adxl_read_values(DATA_START);
+//		adxl_spi_read(DATA_START, data_recv);
+//
 //		x = ((data_recv[1]<<8) | (data_recv[0]));
 //		y = ((data_recv[3]<<8) | (data_recv[2]));
 //		z = ((data_recv[5]<<8) | (data_recv[4]));
@@ -157,24 +171,6 @@ int main(void) {
 //		yg = (y * SCALE_FACTOR);
 //		zg = (z * SCALE_FACTOR);
 //	}
-
-
-	// use spi to read accel
-
-	adxl_init_spi();
-
-	while(1) {
-		adxl_spi_read(DATA_START, data_recv);
-
-		x = ((data_recv[1]<<8) | (data_recv[0]));
-		y = ((data_recv[3]<<8) | (data_recv[2]));
-		z = ((data_recv[5]<<8) | (data_recv[4]));
-
-		// apply scale factor
-		xg = (x * SCALE_FACTOR);
-		yg = (y * SCALE_FACTOR);
-		zg = (z * SCALE_FACTOR);
-	}
 
 
 }
